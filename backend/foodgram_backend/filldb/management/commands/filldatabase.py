@@ -4,10 +4,14 @@ import os
 import sys
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
+
 from recipes.models import (IngredientAmount, IngredientType, Measure, Recipe,
-                            Tag)
-from utils import clean_word
+                            Subscribe, Tag)
+from utils.strings import clean_word
+
+User = get_user_model()
 
 CSV_DIR = os.path.join(os.path.dirname(os.path.dirname(settings.BASE_DIR)),
                        'data')
@@ -23,6 +27,8 @@ RECIPES = 'recipes'
 INGREDIENTS_AMOUNTS = 'ingredients_amounts'
 TAGS = 'tags'
 TAGS_RECIPES = 'tags_recipes'
+USERS = 'users'
+SUBSCRIBES = 'subscribes'
 
 
 def read_file(filename):
@@ -34,7 +40,16 @@ def read_file(filename):
 
 
 def create_objects(row, filename):
-    if filename == INGREDIENTS:
+    if filename == USERS:
+        User.objects.create(
+            pk=int(row[0]), username=row[1], email=row[2], role=row[3]
+        )
+    elif filename == SUBSCRIBES:
+        Subscribe.objects.create(
+            user=User.objects.get(pk=int(row[0])),
+            author=User.objects.get(pk=int(row[1]))
+        )
+    elif filename == INGREDIENTS:
         name = clean_word(row[0])
         measurement_unit, _ = Measure.objects.get_or_create(name=clean_word(row[1]))
         kwargs = {'name': name,
@@ -42,9 +57,10 @@ def create_objects(row, filename):
         IngredientType.objects.create(**kwargs)
     elif filename == RECIPES:
         Recipe.objects.create(pk=int(row[0]),
-                              name=row[1],
-                              text=row[2],
-                              cooking_time=int(row[3]))
+                              author=User.objects.get(pk=int(row[1])),
+                              name=row[2],
+                              text=row[3],
+                              cooking_time=int(row[4]))
     elif filename == INGREDIENTS_AMOUNTS:
         ingredient = IngredientType.objects.get(pk=int(row[0]))
         recipe = Recipe.objects.get(pk=int(row[2]))
@@ -69,6 +85,8 @@ class Command(BaseCommand):
     help = 'Заполняет базу данных для тестирования'
 
     def handle(self, *args, **kwargs):
+        read_to_DB(USERS)
+        read_to_DB(SUBSCRIBES)
         read_to_DB(RECIPES)
         read_to_DB(INGREDIENTS)
         read_to_DB(INGREDIENTS_AMOUNTS)

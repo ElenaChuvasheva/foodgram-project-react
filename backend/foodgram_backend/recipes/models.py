@@ -1,18 +1,17 @@
-from django.core.validators import (MaxLengthValidator, MinValueValidator,
-                                    RegexValidator)
+from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
-from django.db.models.signals import pre_delete, pre_save
-from django.dispatch import receiver
+
+from utils.validators import MaxLengthValidatorMessage
+
+User = get_user_model()
 
 
 class Measure(models.Model):
     name = models.CharField(
         verbose_name='Название', max_length=200,
         unique=True,
-        validators=[
-            MaxLengthValidator(
-                limit_value=200, message='Длина названия не более 200 знаков'
-            )]
+        validators=[MaxLengthValidatorMessage(200)]
     )
 
     class Meta:
@@ -28,10 +27,7 @@ class IngredientType(models.Model):
     name = models.CharField(
         verbose_name='Название', max_length=200,
         db_index=True,
-        validators=[
-            MaxLengthValidator(
-                limit_value=200, message='Длина названия не более 200 знаков'
-            )]
+        validators=[MaxLengthValidatorMessage(200)]
     )
     measurement_unit = models.ForeignKey(
         Measure,
@@ -58,10 +54,7 @@ class Tag(models.Model):
         verbose_name='Название тега',
         max_length=200,
         unique=True,
-        validators=[
-            MaxLengthValidator(
-                limit_value=200, message='Длина названия не более 200 знаков'
-            )]
+        validators=[MaxLengthValidatorMessage(200)]
     )
     slug = models.SlugField(
         unique=True,
@@ -69,19 +62,14 @@ class Tag(models.Model):
         max_length=200,
         validators=[
             RegexValidator(
-                regex='^[-a-zA-Z0-9_]+$', message='Используйте латинские буквы, цифры, знаки _, -'
+                regex=r'^[-a-zA-Z0-9_]+$', message='Используйте латинские буквы, цифры, знаки _, -'
             ),
-            MaxLengthValidator(
-                limit_value=200, message='Длина названия не более 200 знаков'
-            )]
+            MaxLengthValidatorMessage(200)]
     )
     color = models.CharField(
         verbose_name='Цвет тега',
         max_length=7,
-        validators=[
-            MaxLengthValidator(
-                limit_value=7, message='Длина строки не более 7 знаков'
-            )]
+        validators=[MaxLengthValidatorMessage(7)]
     )
 
     class Meta:
@@ -93,20 +81,41 @@ class Tag(models.Model):
         return self.name
 
 
+class Subscribe(models.Model):
+    user = models.ForeignKey(User, related_name='subscriber',
+                             on_delete=models.CASCADE,
+                             verbose_name='Подписчик')
+    author = models.ForeignKey(User, related_name='subscribing',
+                               on_delete=models.CASCADE,
+                               verbose_name='Автор')
+
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+        ordering = ('pk',)
+        constraints = (
+            models.UniqueConstraint(fields=('user', 'author'),
+                                    name='unique_user_author'),
+        )
+
+
 class Recipe(models.Model):
     name = models.CharField(
         verbose_name='Название рецепта',
         max_length=200,
-        validators=[
-            MaxLengthValidator(
-                limit_value=200, message='Длина названия не более 200 знаков'
-            )]
+        validators=[MaxLengthValidatorMessage(200)]
     )
     text = models.TextField(verbose_name='Описание рецепта')
-    ingredient_type = models.ManyToManyField(
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='recipes',
+        verbose_name='Автор'
+    )
+    ingredients = models.ManyToManyField(
         IngredientType,
         verbose_name='Вид ингредиента',
-        related_name='recipe_ingredient_type',
+        through='IngredientAmount'
     )
     cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время приготовления в минутах',
@@ -117,7 +126,7 @@ class Recipe(models.Model):
     )
     tags = models.ManyToManyField(
         Tag,
-        verbose_name='Тег',
+        verbose_name='Теги',
         related_name='recipe_tag',
     )
 
@@ -147,7 +156,6 @@ class IngredientAmount(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='ingredients',
         verbose_name='Ингредиент рецепта'
     )
 
@@ -162,20 +170,3 @@ class IngredientAmount(models.Model):
 
     def __str__(self):
         return f'{self.ingredient.name}, {self.amount} {self.ingredient.measurement_unit}'
-
-
-# доделать на случай замены ингредиента через админку
-@receiver(pre_save, sender=IngredientAmount)
-def add_ingredient_saved(sender, instance, **kwargs):
-    ingredients_of_recipe = instance.recipe.ingredient_type.all()
-    if instance.ingredient not in ingredients_of_recipe:
-        instance.recipe.ingredient_type.add(instance.ingredient)
-    old_object_qset = IngredientAmount.objects.filter(pk=instance.pk).select_related('ingredient')
-    if old_object_qset.exists() and old_object_qset[0].ingredient != instance.ingredient:
-        instance.recipe.ingredient_type.remove(old_object_qset[0].ingredient)
-        # IngredientType.objects.create(name='smth', measurement_unit=Measure.objects.get(pk=1))
-
-
-@receiver(pre_delete, sender=IngredientAmount)
-def remove_ingredient_deleted(sender, instance, **kwargs):
-    instance.recipe.ingredient_type.remove(instance.ingredient)

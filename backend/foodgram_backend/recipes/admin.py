@@ -1,21 +1,21 @@
 from django.contrib import admin
+
 from recipes.models import IngredientAmount, IngredientType, Recipe, Tag
 
 
 class IngredientAmountInline(admin.TabularInline):
     model = IngredientAmount
+    list_select_related = ('ingredient',)
     raw_id_fields = ('ingredient',)
 
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name', 'get_ingredient_types', 'get_tags')
-    list_filter = ('name', 'tags')
+    list_display = ('pk', 'name', 'author', 'get_tags')
+    list_select_related = ('author',)
+    list_filter = ('name', 'tags', 'author')
     fields = ('name', 'text', 'cooking_time', 'tags')
     empty_value_display = '-пусто-'
-
-    def get_ingredient_types(self, obj):
-        return '; '.join([p.__str__() for p in obj.ingredient_type.all()])
 
     def get_tags(self, obj):
         return '; '.join([p.__str__() for p in obj.tags.all()])

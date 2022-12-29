@@ -130,3 +130,6 @@ dmypy.json
 
 # .idea
 .idea
+
+create_test_db.bat
+test_script.py
