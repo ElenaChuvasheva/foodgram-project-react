@@ -1,6 +1,9 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
+from django.db.models.signals import m2m_changed
+from django.dispatch import receiver
 
 from utils.strings import LowerCaseEmailField
 from utils.validators import MaxLengthValidatorMessage
@@ -48,6 +51,12 @@ class CustomUser(AbstractUser):
         choices=ROLES,
         default=USER
     )
+    subscribed_to = models.ManyToManyField(
+        'CustomUser',
+        verbose_name='Подписки',
+        related_name='subscribers',
+        blank=True
+    )
 
     class Meta:
         ordering = ('id',)
@@ -65,3 +74,11 @@ class CustomUser(AbstractUser):
     @property
     def is_admin(self):
         return self.role == self.ADMIN
+
+
+@receiver(m2m_changed, sender=CustomUser.subscribers.through)
+def prevent_duplicate_tags_from_group(sender, instance, action,
+                                      reverse, model, pk_set, **kwargs):
+    if action == 'pre_add':
+        if instance.pk in pk_set:
+            raise ValidationError({'Нельзя подписаться на себя'})

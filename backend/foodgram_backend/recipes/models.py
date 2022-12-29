@@ -62,7 +62,8 @@ class Tag(models.Model):
         max_length=200,
         validators=[
             RegexValidator(
-                regex=r'^[-a-zA-Z0-9_]+$', message='Используйте латинские буквы, цифры, знаки _, -'
+                regex=r'^[-a-zA-Z0-9_]+$',
+                message='Используйте латинские буквы, цифры, знаки _, -'
             ),
             MaxLengthValidatorMessage(200)]
     )
@@ -79,24 +80,6 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class Subscribe(models.Model):
-    user = models.ForeignKey(User, related_name='subscriber',
-                             on_delete=models.CASCADE,
-                             verbose_name='Подписчик')
-    author = models.ForeignKey(User, related_name='subscribing',
-                               on_delete=models.CASCADE,
-                               verbose_name='Автор')
-
-    class Meta:
-        verbose_name = 'Подписка'
-        verbose_name_plural = 'Подписки'
-        ordering = ('pk',)
-        constraints = (
-            models.UniqueConstraint(fields=('user', 'author'),
-                                    name='unique_user_author'),
-        )
 
 
 class Recipe(models.Model):
@@ -127,7 +110,6 @@ class Recipe(models.Model):
     tags = models.ManyToManyField(
         Tag,
         verbose_name='Теги',
-        related_name='recipe_tag',
     )
 
     class Meta:
@@ -169,4 +151,5 @@ class IngredientAmount(models.Model):
         )
 
     def __str__(self):
-        return f'{self.ingredient.name}, {self.amount} {self.ingredient.measurement_unit}'
+        return (f'{self.ingredient.name}, '
+                f'{self.amount} {self.ingredient.measurement_unit}')

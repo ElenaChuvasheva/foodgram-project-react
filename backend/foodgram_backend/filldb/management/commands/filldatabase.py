@@ -8,7 +8,7 @@ from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
 from recipes.models import (IngredientAmount, IngredientType, Measure, Recipe,
-                            Subscribe, Tag)
+                            Tag)
 from utils.strings import clean_word
 
 User = get_user_model()
@@ -45,13 +45,13 @@ def create_objects(row, filename):
             pk=int(row[0]), username=row[1], email=row[2], role=row[3]
         )
     elif filename == SUBSCRIBES:
-        Subscribe.objects.create(
-            user=User.objects.get(pk=int(row[0])),
-            author=User.objects.get(pk=int(row[1]))
-        )
+        subscriber = User.objects.get(pk=int(row[0]))
+        author = User.objects.get(pk=int(row[1]))
+        author.subscribers.add(subscriber)
     elif filename == INGREDIENTS:
         name = clean_word(row[0])
-        measurement_unit, _ = Measure.objects.get_or_create(name=clean_word(row[1]))
+        measurement_unit, _ = Measure.objects.get_or_create(
+            name=clean_word(row[1]))
         kwargs = {'name': name,
                   'measurement_unit': measurement_unit}
         IngredientType.objects.create(**kwargs)
@@ -68,7 +68,8 @@ def create_objects(row, filename):
                                         amount=int(row[1]),
                                         recipe=recipe)
     elif filename == TAGS:
-        Tag.objects.create(pk=int(row[0]), name=row[1], slug=row[2], color=row[3])
+        Tag.objects.create(pk=int(row[0]), name=row[1],
+                           slug=row[2], color=row[3])
     elif filename == TAGS_RECIPES:
         tag = Tag.objects.get(pk=int(row[0]))
         recipe = Recipe.objects.get(pk=int(row[1]))
