@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
+from django.db.models import F, Q
 
 from utils.validators import MaxLengthValidatorMessage
 
@@ -111,6 +112,17 @@ class Recipe(models.Model):
         Tag,
         verbose_name='Теги',
     )
+    favorited_by = models.ManyToManyField(
+        User,
+        verbose_name='Избранное',
+        related_name='favorited',
+        blank=True
+    )
+    cart_of = models.ManyToManyField(
+        User, verbose_name='Корзина',
+        related_name='cart',
+        blank=True
+    )
 
     class Meta:
         verbose_name = 'Рецепт'
@@ -153,3 +165,23 @@ class IngredientAmount(models.Model):
     def __str__(self):
         return (f'{self.ingredient.name}, '
                 f'{self.amount} {self.ingredient.measurement_unit}')
+
+
+class Subscribe(models.Model):
+    user = models.ForeignKey(User, related_name='subscriber',
+                             on_delete=models.CASCADE,
+                             verbose_name='Подписчик')
+    author = models.ForeignKey(User, related_name='subscribed_to',
+                               on_delete=models.CASCADE,
+                               verbose_name='Автор')
+
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+        constraints = (
+            models.UniqueConstraint(fields=('user', 'author'),
+                                    name='unique_user_author'),
+            models.CheckConstraint(check=~Q(user=F('author')),
+                                   name='author_not_user_constraint')
+        )
+        ordering = ('pk',)

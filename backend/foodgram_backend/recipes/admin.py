@@ -1,12 +1,19 @@
 from django.contrib import admin
 
-from recipes.models import IngredientAmount, IngredientType, Recipe, Tag
+from recipes.models import (IngredientAmount, IngredientType, Measure, Recipe,
+                            Subscribe, Tag)
 
 
 class IngredientAmountInline(admin.TabularInline):
     model = IngredientAmount
     list_select_related = ('ingredient',)
     raw_id_fields = ('ingredient',)
+    verbose_name_plural = 'Ингредиенты'
+
+
+@admin.register(Measure)
+class MeasureAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'name',)
 
 
 @admin.register(Recipe)
@@ -14,11 +21,17 @@ class RecipeAdmin(admin.ModelAdmin):
     list_display = ('pk', 'name', 'author', 'get_tags')
     list_select_related = ('author',)
     list_filter = ('name', 'tags', 'author')
-    fields = ('name', 'text', 'cooking_time', 'tags')
+    readonly_fields = ('get_favorited',)
     empty_value_display = '-пусто-'
 
     def get_tags(self, obj):
         return '; '.join([p.__str__() for p in obj.tags.all()])
+
+    def get_favorited(self, obj):
+        return obj.favorited_by.count()
+
+    get_favorited.short_description = 'В избранном, раз'
+    get_tags.short_description = 'ТЕГИ'
 
     inlines = (IngredientAmountInline,)
 
@@ -45,4 +58,10 @@ class IngredientAmountAdmin(admin.ModelAdmin):
 class TagAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name', )}
     list_display = ('pk', 'name', 'slug', 'color')
+    empty_value_display = '-пусто-'
+
+
+@admin.register(Subscribe)
+class SubscribeAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'user', 'author')
     empty_value_display = '-пусто-'

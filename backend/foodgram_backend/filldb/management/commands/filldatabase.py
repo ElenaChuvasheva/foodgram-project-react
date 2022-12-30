@@ -8,7 +8,7 @@ from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
 from recipes.models import (IngredientAmount, IngredientType, Measure, Recipe,
-                            Tag)
+                            Subscribe, Tag)
 from utils.strings import clean_word
 
 User = get_user_model()
@@ -29,6 +29,8 @@ TAGS = 'tags'
 TAGS_RECIPES = 'tags_recipes'
 USERS = 'users'
 SUBSCRIBES = 'subscribes'
+FAVORITED = 'favorited'
+CART = 'cart'
 
 
 def read_file(filename):
@@ -41,13 +43,15 @@ def read_file(filename):
 
 def create_objects(row, filename):
     if filename == USERS:
-        User.objects.create(
-            pk=int(row[0]), username=row[1], email=row[2], role=row[3]
+        user = User.objects.create(
+            pk=int(row[0]), username=row[1], email=row[2], role=row[3],
         )
+        user.set_password(row[4])
+        user.save()
     elif filename == SUBSCRIBES:
-        subscriber = User.objects.get(pk=int(row[0]))
+        user = User.objects.get(pk=int(row[0]))
         author = User.objects.get(pk=int(row[1]))
-        author.subscribers.add(subscriber)
+        Subscribe.objects.create(user=user, author=author)
     elif filename == INGREDIENTS:
         name = clean_word(row[0])
         measurement_unit, _ = Measure.objects.get_or_create(
@@ -74,6 +78,14 @@ def create_objects(row, filename):
         tag = Tag.objects.get(pk=int(row[0]))
         recipe = Recipe.objects.get(pk=int(row[1]))
         recipe.tags.add(tag)
+    elif filename == FAVORITED:
+        User.objects.get(pk=int(row[0])).favorited.add(
+            Recipe.objects.get(pk=int(row[1]))
+        )
+    elif filename == CART:
+        User.objects.get(pk=int(row[0])).cart.add(
+            Recipe.objects.get(pk=int(row[1]))
+        )
 
 
 def read_to_DB(filename):
@@ -93,4 +105,6 @@ class Command(BaseCommand):
         read_to_DB(INGREDIENTS_AMOUNTS)
         read_to_DB(TAGS)
         read_to_DB(TAGS_RECIPES)
+        read_to_DB(FAVORITED)
+        read_to_DB(CART)
         logging.info('база данных готова')
