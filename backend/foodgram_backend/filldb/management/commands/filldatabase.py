@@ -47,6 +47,7 @@ def create_objects(row, filename):
             pk=int(row[0]), username=row[1], email=row[2], role=row[3],
         )
         user.set_password(row[4])
+        user.is_staff = int(row[5])
         user.save()
     elif filename == SUBSCRIBES:
         user = User.objects.get(pk=int(row[0]))

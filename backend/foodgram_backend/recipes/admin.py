@@ -59,9 +59,3 @@ class TagAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name', )}
     list_display = ('pk', 'name', 'slug', 'color')
     empty_value_display = '-пусто-'
-
-
-@admin.register(Subscribe)
-class SubscribeAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'user', 'author')
-    empty_value_display = '-пусто-'

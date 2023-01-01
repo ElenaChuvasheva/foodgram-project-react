@@ -3,7 +3,7 @@ from http import HTTPStatus
 from django.contrib import admin
 from django.db.models import Sum
 from django.http import HttpResponse
-from django.urls import path
+from django.urls import include, path
 
 from recipes.models import IngredientType
 
@@ -23,6 +23,7 @@ def get_file(request):
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('file/', get_file)
+    path('for_staff_only/', admin.site.urls),
+    path('file/', get_file),
+    path('api/', include('api.urls', namespace='api')),
 ]

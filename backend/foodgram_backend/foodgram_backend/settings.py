@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -17,9 +18,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework.authtoken',
+    'rest_framework',
+    'djoser',
     'recipes',
     'filldb',
-    'users'
+    'users',
+    'api',
 ]
 
 MIDDLEWARE = [
@@ -76,8 +81,27 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+}
 
-LANGUAGE_CODE = 'en-us'
+DJOSER = {
+    'SEND_ACTIVATION_EMAIL': False,
+    'LOGIN_FIELD': 'email',
+    'SERIALIZERS': {
+        'user_create': 'api.v1.users.serializers.CustomUserCreateSerializer',
+
+    },
+}
+
+# SIMPLE_JWT = {
+#    'ACCESS_TOKEN_LIFETIME': timedelta(days=100),
+#    'AUTH_HEADER_TYPES': ('Bearer',),
+#}
+
+LANGUAGE_CODE = 'ru-ru'
 
 TIME_ZONE = 'UTC'
 

@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
-from django.db.models import F, Q
 
 from utils.validators import MaxLengthValidatorMessage
 
@@ -181,7 +180,12 @@ class Subscribe(models.Model):
         constraints = (
             models.UniqueConstraint(fields=('user', 'author'),
                                     name='unique_user_author'),
-            models.CheckConstraint(check=~Q(user=F('author')),
-                                   name='author_not_user_constraint')
         )
         ordering = ('pk',)
+
+    def __str__(self):
+        return f'{self.user.username}, {self.author.username}'
+
+    def save(self, *args, **kwargs):
+        if self.user != self.author:
+            super(Subscribe, self).save(*args, **kwargs)
