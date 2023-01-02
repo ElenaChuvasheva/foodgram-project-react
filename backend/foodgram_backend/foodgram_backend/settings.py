@@ -1,5 +1,4 @@
 import os
-from datetime import timedelta
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -20,6 +19,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework.authtoken',
     'rest_framework',
+    'django_filters',
     'djoser',
     'recipes',
     'filldb',
@@ -85,21 +85,37 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
+
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 6,
 }
 
 DJOSER = {
     'SEND_ACTIVATION_EMAIL': False,
+    'HIDE_USERS': False,
+    'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
     'LOGIN_FIELD': 'email',
     'SERIALIZERS': {
         'user_create': 'api.v1.users.serializers.CustomUserCreateSerializer',
-
+        'user': 'api.v1.users.serializers.CustomUserSerializer',
+        'current_user': 'api.v1.users.serializers.CustomUserSerializer',
     },
+
+    'PERMISSIONS': {
+        'user': ['rest_framework.permissions.AllowAny'],
+        'current_user': ['rest_framework.permissions.IsAuthenticated',],
+        'user_list': ['rest_framework.permissions.AllowAny'],
+    }
 }
+
+DEFAULT_FROM_EMAIL = 'webmaster@localhost'
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 
 # SIMPLE_JWT = {
 #    'ACCESS_TOKEN_LIFETIME': timedelta(days=100),
 #    'AUTH_HEADER_TYPES': ('Bearer',),
-#}
+# }
 
 LANGUAGE_CODE = 'ru-ru'
 

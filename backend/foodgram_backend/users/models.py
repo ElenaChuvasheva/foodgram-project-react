@@ -49,6 +49,7 @@ class CustomUser(AbstractUser):
         default=USER,
         verbose_name='Роль'
     )
+    not_banned = models.BooleanField(default=True, verbose_name='Не забанен')
 
     class Meta:
         ordering = ('id',)
@@ -61,6 +62,9 @@ class CustomUser(AbstractUser):
     def save(self, *args, **kwargs):
         if self.is_staff or self.is_superuser:
             self.role = self.ADMIN
+        if self.is_banned:
+            self.is_staff = False
+            self.is_superuser = False
         super(CustomUser, self).save(*args, **kwargs)
         if self.is_admin and not self.is_superuser:
             self.add_admin_permissions()
@@ -91,3 +95,7 @@ class CustomUser(AbstractUser):
     @property
     def is_admin(self):
         return self.role == self.ADMIN
+
+    @property
+    def is_banned(self):
+        return not self.not_banned

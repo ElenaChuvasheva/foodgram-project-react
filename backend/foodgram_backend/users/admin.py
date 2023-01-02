@@ -27,17 +27,24 @@ class SubscribeInline(admin.TabularInline):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'author':
             resolved = resolve(request.path_info)
-            kwargs['queryset'] = CustomUser.objects.exclude(pk=resolved.kwargs['object_id'])
+            kwargs['queryset'] = CustomUser.objects.exclude(
+                pk=resolved.kwargs['object_id'])
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 @admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin):
+    fieldsets = (
+        (None, {'fields': ('username', 'password')}),
+        ('Персональная информация', {'fields': ('first_name', 'last_name', 'email')}),
+        ('Права доступа', {'fields': ('is_active', 'not_banned', 'is_staff', 'is_superuser')}),
+    )
+    list_filter = ('username', 'email')
     ordering = ('-pk',)
 
     def get_list_display(self, request):
-        result = ['pk', 'email', 'username', 'first_name',
-                  'last_name', 'get_subscribers',
+        result = ['pk', 'username', 'email', 'first_name',
+                  'last_name', 'is_banned', 'get_subscribers',
                   'get_subscribed_to', 'get_role']
         if request.user.is_superuser:
             result.append('role')
@@ -58,12 +65,14 @@ class CustomUserAdmin(UserAdmin):
     def get_readonly_fields(self, request, obj=None):
         result = []
         if not request.user.is_superuser:
-            result.extend(['is_superuser', 'user_permissions', 'groups', 'is_staff'])
+            result.extend(['is_superuser', 'user_permissions',
+                           'groups', 'is_staff'])
             if obj is not None:
                 admin_not_me = obj.is_admin and request.user != obj
                 if admin_not_me:
-                    result.extend(['password', 'is_active', 'first_name',
-                                   'last_name', 'email', 'username'])
+                    result.extend(['password', 'is_active',
+                                   'first_name',
+                                   'last_name', 'email', 'username', 'not_banned'])
         return result
 
     def has_delete_permission(self, request, obj=None):
