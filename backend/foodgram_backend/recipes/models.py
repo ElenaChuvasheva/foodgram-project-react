@@ -164,10 +164,10 @@ class IngredientAmount(models.Model):
 
 
 class Subscribe(models.Model):
-    user = models.ForeignKey(User, related_name='subscriber',
+    user = models.ForeignKey(User, related_name='subscribed_to',
                              on_delete=models.CASCADE,
                              verbose_name='Подписчик')
-    author = models.ForeignKey(User, related_name='subscribed_to',
+    author = models.ForeignKey(User, related_name='subscribers',
                                on_delete=models.CASCADE,
                                verbose_name='Автор')
 

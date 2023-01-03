@@ -31,3 +31,7 @@ class CustomUserSerializer(UserSerializer):
         if request_user.is_anonymous:
             return False
         return is_subscribed(self.context['request'].user, obj)
+
+
+class CustomUserSubscribeSerializer(CustomUserSerializer):
+    pass

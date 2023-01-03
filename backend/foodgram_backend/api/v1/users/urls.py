@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.urls import include, path
 from djoser.views import TokenCreateView, TokenDestroyView  # , UserViewSet
 

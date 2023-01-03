@@ -57,15 +57,18 @@ class RecipeGetSerializer(serializers.ModelSerializer):
 
 class IngredientsField(serializers.RelatedField):
     def to_representation(self, value):
-        ingredients = self.context['request'].data['ingredients']
+        print(value)
         serializer = IngredientTypeSerializer(value)
-        id = serializer.data['id']
         return serializer.data
 
     def to_internal_value(self, data):
-        serializer = IngredientAmountSerializer(data)
-        return serializer.data
+        return data
 
+
+class RecipeShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'cooking_time')
 
 class RecipeSerializer(serializers.ModelSerializer):
     ingredients = IngredientsField(queryset=IngredientAmount.objects.all(), many=True)
@@ -76,11 +79,31 @@ class RecipeSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         tags = validated_data.pop('tags')
         author = self.context['request'].user
-        ingredients = validated_data.pop('ingredients')        
+        ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(author=author, **validated_data)
         for tag in tags:
             recipe.tags.add(tag)
         for ingredient in ingredients:
-            IngredientAmount.objects.create(recipe=recipe, amount=ingredient['amount'],
-                ingredient=IngredientType.objects.get(pk=ingredient['id']))
+            IngredientAmount.objects.create(recipe=recipe, amount=int(ingredient['amount']),
+                ingredient=IngredientType.objects.get(pk=int(ingredient['id'])))
         return recipe
+
+    def update(self, instance, validated_data):
+        new_tags = validated_data.pop('tags', None)
+        if new_tags is not None:
+            instance.tags.clear()
+            instance.tags.add(*new_tags)
+
+        new_ingredients = validated_data.pop('ingredients', None)
+        if new_ingredients is not None:
+            instance.ingredients.clear()
+            for ingredient in new_ingredients:
+                IngredientAmount.objects.create(
+                    recipe=instance,
+                    ingredient=IngredientType.objects.get(pk=ingredient['id']),
+                    amount=ingredient['amount'])
+        for attr in validated_data:
+            setattr(instance, attr, validated_data[attr])
+        instance.save()
+
+        return instance
