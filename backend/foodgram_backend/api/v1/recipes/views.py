@@ -4,7 +4,6 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from api.v1.recipes.serializers import (IngredientAmountGetSerializer,
-                                        IngredientAmountSerializer,
                                         IngredientTypeSerializer,
                                         RecipeGetSerializer, RecipeSerializer,
                                         RecipeShortSerializer, TagSerializer)

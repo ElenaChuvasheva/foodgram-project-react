@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.serializers import SerializerMethodField
 
@@ -23,15 +24,15 @@ class IngredientTypeSerializer(serializers.ModelSerializer):
 
 class IngredientAmountGetSerializer(serializers.ModelSerializer):
     name = SerializerMethodField()
-    id = SerializerMethodField()
+    # id = SerializerMethodField()
     measurement_unit = SerializerMethodField()
-    # чей id нужен?
+    # чей id нужен? мб удалить IngredientAmountInputSerializer?
     class Meta:
         model = IngredientAmount
         fields = ('id', 'amount', 'name', 'measurement_unit')
     
-    def get_id(self, obj):
-        return obj.ingredient.pk
+#    def get_id(self, obj):
+#        return obj.ingredient.pk
     
     def get_name(self, obj):
         return obj.ingredient.name
@@ -40,9 +41,10 @@ class IngredientAmountGetSerializer(serializers.ModelSerializer):
         return obj.ingredient.measurement_unit.name
 
 
-class IngredientAmountSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    amount = serializers.IntegerField()
+class IngredientAmountInputSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = IngredientAmount
+        fields = ('id', 'amount')
 
 
 class RecipeGetSerializer(serializers.ModelSerializer):
@@ -57,12 +59,13 @@ class RecipeGetSerializer(serializers.ModelSerializer):
 
 class IngredientsField(serializers.RelatedField):
     def to_representation(self, value):
-        print(value)
-        serializer = IngredientTypeSerializer(value)
+        serializer = IngredientAmountGetSerializer(value)
         return serializer.data
 
     def to_internal_value(self, data):
-        return data
+        # IngredientAmountInputSerializer?
+        serializer = IngredientAmountInputSerializer(data)
+        return serializer.data
 
 
 class RecipeShortSerializer(serializers.ModelSerializer):
@@ -71,21 +74,27 @@ class RecipeShortSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'cooking_time')
 
 class RecipeSerializer(serializers.ModelSerializer):
-    ingredients = IngredientsField(queryset=IngredientAmount.objects.all(), many=True)
+    ingredients = IngredientsField(queryset=IngredientAmount.objects.all(), source='ingredientamount_set.all', many=True)
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'ingredients', 'text', 'cooking_time', 'tags')
 
+    def validate_ingredients(self, value):
+        for ingredient in value:
+            if ingredient['amount'] < 1:
+                raise serializers.ValidationError('Количество не может быть меньше 1')
+        return value
+
     def create(self, validated_data):
         tags = validated_data.pop('tags')
-        author = self.context['request'].user
-        ingredients = validated_data.pop('ingredients')
+        author = self.context['request'].user                
+        ingredients = validated_data.pop('ingredientamount_set').pop('all')        
         recipe = Recipe.objects.create(author=author, **validated_data)
         for tag in tags:
             recipe.tags.add(tag)
         for ingredient in ingredients:
             IngredientAmount.objects.create(recipe=recipe, amount=int(ingredient['amount']),
-                ingredient=IngredientType.objects.get(pk=int(ingredient['id'])))
+                ingredient=get_object_or_404(IngredientType, pk=int(ingredient['id'])))
         return recipe
 
     def update(self, instance, validated_data):
@@ -93,14 +102,13 @@ class RecipeSerializer(serializers.ModelSerializer):
         if new_tags is not None:
             instance.tags.clear()
             instance.tags.add(*new_tags)
-
         new_ingredients = validated_data.pop('ingredients', None)
         if new_ingredients is not None:
             instance.ingredients.clear()
             for ingredient in new_ingredients:
                 IngredientAmount.objects.create(
                     recipe=instance,
-                    ingredient=IngredientType.objects.get(pk=ingredient['id']),
+                    ingredient = get_object_or_404(IngredientType, pk=ingredient['id']),
                     amount=ingredient['amount'])
         for attr in validated_data:
             setattr(instance, attr, validated_data[attr])
