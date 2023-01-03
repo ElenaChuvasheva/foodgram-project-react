@@ -27,8 +27,9 @@ class SubscribeInline(admin.TabularInline):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'author':
             resolved = resolve(request.path_info)
-            kwargs['queryset'] = CustomUser.objects.exclude(
-                pk=resolved.kwargs['object_id'])
+            if 'object_id' in resolved.kwargs:
+                kwargs['queryset'] = CustomUser.objects.exclude(
+                    pk=resolved.kwargs['object_id'])
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 

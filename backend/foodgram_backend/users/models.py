@@ -3,8 +3,9 @@ from django.core.validators import RegexValidator
 from django.db import models
 
 from utils.strings import LowerCaseEmailField
-from utils.validators import MaxLengthValidatorMessage
 
+MAX_LENGTH = 150
+MAX_LENGTH_EMAIL = 254
 
 class CustomUser(AbstractUser):
     """Кастомная модель User."""
@@ -15,11 +16,10 @@ class CustomUser(AbstractUser):
         (USER, 'User'),
     )
     username = models.CharField(
-        max_length=150,
+        max_length=MAX_LENGTH,
         unique=True,
         blank=False,
         validators=[
-            MaxLengthValidatorMessage(150),
             RegexValidator(
                 regex=r'^[\w.@+-]+$',
                 message='Используйте буквы, цифры, знаки ., @, +, -'
@@ -28,19 +28,16 @@ class CustomUser(AbstractUser):
         verbose_name='Nickname пользователя',
     )
     email = LowerCaseEmailField(
-        max_length=254,
+        max_length=MAX_LENGTH_EMAIL,
         unique=True,
-        validators=[MaxLengthValidatorMessage(254)],
         verbose_name='Адрес электронной почты'
     )
     first_name = models.CharField(
-        max_length=150,
-        validators=[MaxLengthValidatorMessage(150)],
+        max_length=MAX_LENGTH,
         verbose_name='Имя пользователя'
     )
     last_name = models.CharField(
-        max_length=150,
-        validators=[MaxLengthValidatorMessage(150)],
+        max_length=MAX_LENGTH,
         verbose_name='Фамилия пользователя'
     )
     role = models.CharField(

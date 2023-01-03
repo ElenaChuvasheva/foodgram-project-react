@@ -3,16 +3,16 @@ from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
 from django.db.models import F, Q
 
-from utils.validators import MaxLengthValidatorMessage
-
 User = get_user_model()
 
 
+MAX_LENGTH = 200
+MAX_LENGTH_COLOR = 7
+
 class Measure(models.Model):
     name = models.CharField(
-        verbose_name='Название', max_length=200,
+        verbose_name='Название', max_length=MAX_LENGTH,
         unique=True,
-        validators=[MaxLengthValidatorMessage(200)]
     )
 
     class Meta:
@@ -26,9 +26,8 @@ class Measure(models.Model):
 
 class IngredientType(models.Model):
     name = models.CharField(
-        verbose_name='Название', max_length=200,
+        verbose_name='Название', max_length=MAX_LENGTH,
         db_index=True,
-        validators=[MaxLengthValidatorMessage(200)]
     )
     measurement_unit = models.ForeignKey(
         Measure,
@@ -53,25 +52,23 @@ class IngredientType(models.Model):
 class Tag(models.Model):
     name = models.CharField(
         verbose_name='Название тега',
-        max_length=200,
+        max_length=MAX_LENGTH,
         unique=True,
-        validators=[MaxLengthValidatorMessage(200)]
     )
     slug = models.SlugField(
         unique=True,
         verbose_name='Slug',
-        max_length=200,
+        max_length=MAX_LENGTH,
         validators=[
             RegexValidator(
                 regex=r'^[-a-zA-Z0-9_]+$',
                 message='Используйте латинские буквы, цифры, знаки _, -'
             ),
-            MaxLengthValidatorMessage(200)]
+        ]
     )
     color = models.CharField(
         verbose_name='Цвет тега',
-        max_length=7,
-        validators=[MaxLengthValidatorMessage(7)]
+        max_length=MAX_LENGTH_COLOR,
     )
 
     class Meta:
@@ -86,8 +83,7 @@ class Tag(models.Model):
 class Recipe(models.Model):
     name = models.CharField(
         verbose_name='Название рецепта',
-        max_length=200,
-        validators=[MaxLengthValidatorMessage(200)]
+        max_length=MAX_LENGTH,
     )
     text = models.TextField(verbose_name='Описание рецепта')
     author = models.ForeignKey(

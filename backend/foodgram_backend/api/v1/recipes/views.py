@@ -1,6 +1,7 @@
 from rest_framework import filters, viewsets
 
 from api.v1.recipes.serializers import (IngredientAmountGetSerializer,
+                                        IngredientAmountSerializer,
                                         IngredientTypeSerializer,
                                         RecipeGetSerializer, RecipeSerializer,
                                         TagSerializer)
@@ -22,11 +23,6 @@ class IngredientTypeViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = IngredientType.objects.all()
     filter_backends = (filters.SearchFilter,)
     search_fields = ('^name',)
-
-
-class IngredientAmountViewSet(GetPostPatchDeleteViewSet):
-    serializer_class = IngredientAmountGetSerializer
-    queryset = IngredientAmount.objects.all()
 
 
 class RecipeViewSet(GetPostPatchDeleteViewSet):
