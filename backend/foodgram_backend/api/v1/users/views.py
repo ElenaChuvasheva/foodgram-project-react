@@ -1,11 +1,8 @@
 from djoser.conf import settings
 from djoser.views import UserViewSet
-from rest_framework import status
-from rest_framework.decorators import action
-from rest_framework.response import Response
+from rest_framework.generics import ListAPIView
 
-from api.v1.users.serializers import CustomUserSubscribeSerializer
-from recipes.models import Subscribe
+from users.models import Subscribe
 
 
 class CustomUserViewSet(UserViewSet):
@@ -13,6 +10,12 @@ class CustomUserViewSet(UserViewSet):
         if self.action == 'me':
             self.permission_classes = settings.PERMISSIONS.current_user
         return super().get_permissions()
+
+
+class SubscribeView(ListAPIView):
+    def get_queryset(self):
+        current_user = self.request.user
+        return current_user.subscribed_to.all()
     
 #    @action(detail=False, url_path='wtf')
 #    def my_subscriptions(self, request):

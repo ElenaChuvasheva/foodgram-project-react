@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from recipes.models import (IngredientAmount, IngredientType, Measure, Recipe,
-                            Subscribe, Tag)
+                            Tag)
 
 
 class IngredientAmountInline(admin.TabularInline):

@@ -2,8 +2,8 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.urls import resolve
 
-from recipes.models import Recipe, Subscribe
-from users.models import CustomUser
+from recipes.models import Recipe
+from users.models import CustomUser, Subscribe
 
 
 class FavoritedInline(admin.TabularInline):

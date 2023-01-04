@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework.serializers import CharField, SerializerMethodField
 
-from recipes.models import Subscribe
+from users.models import Subscribe
 
 User = get_user_model()
 

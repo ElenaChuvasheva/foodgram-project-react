@@ -3,11 +3,10 @@ from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from api.v1.recipes.serializers import (IngredientAmountGetSerializer,
-                                        IngredientTypeSerializer,
-                                        RecipeGetSerializer, RecipeSerializer,
+from api.v1.recipes.serializers import (IngredientTypeSerializer,
+                                        RecipeSerializer,
                                         RecipeShortSerializer, TagSerializer)
-from recipes.models import IngredientAmount, IngredientType, Recipe, Tag
+from recipes.models import IngredientType, Recipe, Tag
 
 messages = {'unauthorized': 'Пользователь не авторизован',
             'favorite_success': 'Рецепт успешно добавлен в избранное',
@@ -32,11 +31,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     http_method_names = ('get', 'post', 'patch', 'delete')    
     serializer_class = RecipeSerializer
     queryset = Recipe.objects.all()
-
-    def get_serializer_class(self):
-        if self.action == 'list' or self.action == 'retrieve':
-            return RecipeGetSerializer
-        return RecipeSerializer
 
     @action(detail=True, url_path='favorite',
             methods=['POST', 'DELETE'])
