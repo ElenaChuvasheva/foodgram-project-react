@@ -17,9 +17,16 @@ class TagSerializer(serializers.ModelSerializer):
 
 class IngredientTypeSerializer(serializers.ModelSerializer):
     measurement_unit = serializers.StringRelatedField(read_only=True)
+
     class Meta:
         model = IngredientType
         fields = '__all__'
+
+
+class RecipeShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'cooking_time')
 
 
 class IngredientAmountSerializer(serializers.ModelSerializer):
@@ -38,7 +45,7 @@ class IngredientAmountSerializer(serializers.ModelSerializer):
     
 
 # также к вопросу о выдаче
-class TagsField(serializers.RelatedField):    
+class TagsField(serializers.RelatedField):
     def to_internal_value(self, data):
         return data
     
@@ -47,20 +54,14 @@ class TagsField(serializers.RelatedField):
         return serializer.data
 
 
-# выдача важна? порезать вот это?
-class RecipeShortSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Recipe
-        fields = ('id', 'name', 'cooking_time')
-
-
 class RecipeSerializer(serializers.ModelSerializer):
     ingredients = IngredientAmountSerializer(source='ingredientamount_set.all', many=True)
     author = CustomUserSerializer(read_only=True, default=serializers.CurrentUserDefault())
     is_favorited = SerializerMethodField()
     is_in_shopping_cart = SerializerMethodField()
-    # убрать tags = ..., если выдача неважна
+    # убрать tags = ... или сделать через primarykey, если выдача неважна
     tags = TagsField(many=True, queryset=Tag.objects.all())
+
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'ingredients', 'text', 'cooking_time',

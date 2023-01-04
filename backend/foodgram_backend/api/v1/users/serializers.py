@@ -29,9 +29,13 @@ class CustomUserSerializer(UserSerializer):
     def get_is_subscribed(self, obj):
         request_user = self.context['request'].user
         if request_user.is_anonymous:
-            return False
+            return None
         return is_subscribed(self.context['request'].user, obj)
 
 
 class CustomUserSubscribeSerializer(CustomUserSerializer):
-    pass
+#    recipes = RecipeShortSerializer(source='recipes', many=True)
+
+    class Meta:
+        fields = ('email', 'id', 'username', 'first_name',
+                  'last_name', 'is_subscribed', 'recipes')
