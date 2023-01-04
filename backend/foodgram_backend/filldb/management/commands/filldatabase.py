@@ -8,8 +8,7 @@ from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
 from recipes.models import (IngredientAmount, IngredientType, Measure, Recipe,
-                            Tag)
-from users.models import Subscribe
+                            Subscribe, Tag)
 from utils.strings import clean_word
 
 User = get_user_model()

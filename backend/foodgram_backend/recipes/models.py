@@ -1,12 +1,14 @@
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
+from django.db.models import F, Q
 
 User = get_user_model()
 
 
 MAX_LENGTH = 200
 MAX_LENGTH_COLOR = 7
+
 
 class Measure(models.Model):
     name = models.CharField(
@@ -160,3 +162,26 @@ class IngredientAmount(models.Model):
     def __str__(self):
         return (f'{self.ingredient.name}, '
                 f'{self.amount} {self.ingredient.measurement_unit}')
+
+
+class Subscribe(models.Model):
+    user = models.ForeignKey(User, related_name='subscribed_to',
+                             on_delete=models.CASCADE,
+                             verbose_name='Подписчик')
+    author = models.ForeignKey(User, related_name='subscribers',
+                               on_delete=models.CASCADE,
+                               verbose_name='Автор')
+
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+        constraints = (
+            models.UniqueConstraint(fields=('user', 'author'),
+                                    name='unique_user_author'),
+            models.CheckConstraint(check=~Q(user=F('author')),
+                                   name='author_not_user_constraint')
+        )
+        ordering = ('pk',)
+
+    def __str__(self):
+        return f'{self.user.username}, {self.author.username}'

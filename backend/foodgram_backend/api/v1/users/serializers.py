@@ -1,14 +1,10 @@
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer, UserSerializer
-from rest_framework.serializers import CharField, SerializerMethodField
+from rest_framework.serializers import SerializerMethodField
 
-from users.models import Subscribe
+from utils.calculations import is_subscribed
 
 User = get_user_model()
-
-
-def is_subscribed(obj1, obj2):
-    return Subscribe.objects.filter(user=obj1, author=obj2).exists()
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
@@ -34,8 +30,4 @@ class CustomUserSerializer(UserSerializer):
 
 
 class CustomUserSubscribeSerializer(CustomUserSerializer):
-#    recipes = RecipeShortSerializer(source='recipes', many=True)
-
-    class Meta:
-        fields = ('email', 'id', 'username', 'first_name',
-                  'last_name', 'is_subscribed', 'recipes')
+    pass

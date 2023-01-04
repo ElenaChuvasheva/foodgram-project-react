@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.serializers import SerializerMethodField
 
-from api.v1.users.serializers import CustomUserSerializer
+from api.v1.users.serializers import CustomUserSubscribeSerializer
 from recipes.models import IngredientAmount, IngredientType, Recipe, Tag
 
 User = get_user_model()
@@ -34,6 +34,7 @@ class IngredientAmountSerializer(serializers.ModelSerializer):
     name = serializers.PrimaryKeyRelatedField(source='ingredient.name', queryset=IngredientType.objects.all(), required=False)
     measurement_unit = serializers.PrimaryKeyRelatedField(source='ingredient.measurement_unit.name', queryset=IngredientType.objects.all(), required=False)
     # чей id нужен?
+
     class Meta:
         model = IngredientAmount
         fields = ('id', 'amount', 'name', 'measurement_unit')
@@ -48,7 +49,7 @@ class IngredientAmountSerializer(serializers.ModelSerializer):
 class TagsField(serializers.RelatedField):
     def to_internal_value(self, data):
         return data
-    
+
     def to_representation(self, value):
         serializer = TagSerializer(value)
         return serializer.data
@@ -56,7 +57,7 @@ class TagsField(serializers.RelatedField):
 
 class RecipeSerializer(serializers.ModelSerializer):
     ingredients = IngredientAmountSerializer(source='ingredientamount_set.all', many=True)
-    author = CustomUserSerializer(read_only=True, default=serializers.CurrentUserDefault())
+    author = CustomUserSubscribeSerializer(read_only=True, default=serializers.CurrentUserDefault())
     is_favorited = SerializerMethodField()
     is_in_shopping_cart = SerializerMethodField()
     # убрать tags = ... или сделать через primarykey, если выдача неважна
