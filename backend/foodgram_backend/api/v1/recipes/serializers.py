@@ -1,12 +1,16 @@
 from django.contrib.auth import get_user_model
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.serializers import SerializerMethodField
 
-from api.v1.users.serializers import CustomUserSubscribeSerializer
+from api.v1.users.serializers import CustomUserSerializer
 from recipes.models import IngredientAmount, IngredientType, Recipe, Tag
 
 User = get_user_model()
+
+messages = {'not_less_1': 'Количество не может быть меньше 1',
+            'ingr_no_repeat': 'Ингредиенты не должны повторяться',
+            'ingr_not_empty': 'Список ингредиентов не может быть пустым',
+            'tags_not_empty': 'Список тегов не может быть пустым'}
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -30,9 +34,14 @@ class RecipeShortSerializer(serializers.ModelSerializer):
 
 
 class IngredientAmountSerializer(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(source='ingredient.pk', queryset=IngredientType.objects.all())
-    name = serializers.PrimaryKeyRelatedField(source='ingredient.name', queryset=IngredientType.objects.all(), required=False)
-    measurement_unit = serializers.PrimaryKeyRelatedField(source='ingredient.measurement_unit.name', queryset=IngredientType.objects.all(), required=False)
+    id = serializers.PrimaryKeyRelatedField(
+        source='ingredient.pk', queryset=IngredientType.objects.all())
+    name = serializers.PrimaryKeyRelatedField(
+        source='ingredient.name', queryset=IngredientType.objects.all(),
+        required=False)
+    measurement_unit = serializers.PrimaryKeyRelatedField(
+        source='ingredient.measurement_unit.name',
+        queryset=IngredientType.objects.all(), required=False)
     # чей id нужен?
 
     class Meta:
@@ -41,9 +50,9 @@ class IngredientAmountSerializer(serializers.ModelSerializer):
 
     def validate_amount(self, value):
         if value < 1:
-            raise serializers.ValidationError('Количество не может быть меньше 1')
+            raise serializers.ValidationError(messages['not_less_1'])
         return value
-    
+
 
 # также к вопросу о выдаче
 class TagsField(serializers.RelatedField):
@@ -55,9 +64,33 @@ class TagsField(serializers.RelatedField):
         return serializer.data
 
 
+class CustomUserSubscribeSerializer(CustomUserSerializer):
+    recipes = SerializerMethodField()
+    recipes_count = SerializerMethodField()
+
+    class Meta(CustomUserSerializer.Meta):
+        model = User
+        fields = ('email', 'id', 'username', 'first_name',
+                  'last_name', 'is_subscribed', 'recipes', 'recipes_count')
+
+    def get_recipes_count(self, obj):
+        return obj.recipes.count()
+
+    def get_recipes(self, obj):
+        recipes_limit_str = self.context['request'].query_params.get(
+            'recipes_limit')
+        recipes_limit = (int(recipes_limit_str)
+                         if recipes_limit_str is not None else None)
+        recipes = obj.recipes.all()[:recipes_limit]
+        serializer = RecipeShortSerializer(recipes, many=True)
+        return serializer.data
+
+
 class RecipeSerializer(serializers.ModelSerializer):
-    ingredients = IngredientAmountSerializer(source='ingredientamount_set.all', many=True)
-    author = CustomUserSubscribeSerializer(read_only=True, default=serializers.CurrentUserDefault())
+    ingredients = IngredientAmountSerializer(
+        source='ingredientamount_set.all', many=True)
+    author = CustomUserSerializer(
+        read_only=True, default=serializers.CurrentUserDefault())
     is_favorited = SerializerMethodField()
     is_in_shopping_cart = SerializerMethodField()
     # убрать tags = ... или сделать через primarykey, если выдача неважна
@@ -77,14 +110,14 @@ class RecipeSerializer(serializers.ModelSerializer):
     def validate_ingredients(self, value):
         ingredients_list = [v['ingredient']['pk'] for v in value]
         if len(set(ingredients_list)) != len(ingredients_list):
-            raise serializers.ValidationError('Ингредиенты не должны повторяться')
+            raise serializers.ValidationError(messages['ingr_no_repeat'])
         if not value:
-            raise serializers.ValidationError('Список ингредиентов не может быть пустым')
+            raise serializers.ValidationError(messages['ingr_not_empty'])
         return value
 
     def validate_tags(self, value):
         if not value:
-            raise serializers.ValidationError('Список тегов не может быть пустым')
+            raise serializers.ValidationError(messages['tags_not_empty'])
         return value
 
     def create(self, validated_data):
@@ -102,7 +135,8 @@ class RecipeSerializer(serializers.ModelSerializer):
             instance.tags.clear()
             self.__make_tags(instance, new_tags)
         if 'ingredientamount_set' in validated_data:
-            new_ingredients = validated_data.pop('ingredientamount_set', None).pop('all', None)
+            new_ingredients = validated_data.pop(
+                'ingredientamount_set', None).pop('all', None)
             instance.ingredient_types.clear()
             self.__make_ingredients(instance, new_ingredients)
         for attr in validated_data:

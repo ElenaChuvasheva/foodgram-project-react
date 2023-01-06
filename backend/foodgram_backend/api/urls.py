@@ -15,7 +15,7 @@ users_detail = CustomUserViewSet.as_view(
 # users_subscriptions = CustomUserViewSet.as_view(
 #    {'get': 'my_subscriptions'})
 # пермишен для примера
-#users_subscribe = CustomUserViewSet.as_view(
+# users_subscribe = CustomUserViewSet.as_view(
 #    {'post': 'subscribe', 'delete': 'unsubscribe'},
 #    permission_classes=[permissions.IsAuthenticated])
 users_me = CustomUserViewSet.as_view(
@@ -30,8 +30,6 @@ users_reset_password_confirm = CustomUserViewSet.as_view(
 users_urls = [
     path('', users_list),
     path('<int:id>/', users_detail),
-  #  path('subscriptions/', users_subscriptions),
-  #  path('<int:id>/subscribe/', users_subscribe),
     path('me/', users_me),
     path('set_password/', users_set_password),
     path('reset_password/', users_reset_password),
@@ -53,12 +51,15 @@ subscribe_urls = [
         {'post': 'subscribe', 'delete': 'unsubscribe'})),
 ]
 
+cart_urls = []
+
 # переопределить TokenCreateView из-за кода ответа?
 # ловить response и возвращать с другим кодом?
 
 v1_recipes_router = routers.DefaultRouter()
 v1_recipes_router.register('tags', TagViewSet, basename='tags')
-v1_recipes_router.register('ingredients', IngredientTypeViewSet, basename='ingredient_types')
+v1_recipes_router.register(
+    'ingredients', IngredientTypeViewSet, basename='ingredient_types')
 v1_recipes_router.register('recipes', RecipeViewSet, basename='recipes')
 
 

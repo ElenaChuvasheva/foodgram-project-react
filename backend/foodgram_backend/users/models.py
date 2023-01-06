@@ -7,6 +7,7 @@ from utils.strings import LowerCaseEmailField
 MAX_LENGTH = 150
 MAX_LENGTH_EMAIL = 254
 
+
 class CustomUser(AbstractUser):
     """Кастомная модель User."""
     ADMIN = 'admin'
