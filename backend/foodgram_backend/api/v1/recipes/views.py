@@ -7,8 +7,10 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from api.v1.permissions import NotBannedOrReadOnly
 from api.v1.recipes.serializers import (CustomUserSubscribeSerializer,
                                         IngredientTypeSerializer,
                                         RecipeSerializer,
@@ -20,8 +22,8 @@ User = get_user_model()
 
 messages = {'unauthorized': 'Пользователь не авторизован',
             'favorite_success': 'Рецепт успешно добавлен в избранное',
-            'favorite_fail': 'Ошибка добавления в избранное',
-            'unfavorite_fail': 'Ошибка удаления из избранного',
+            'favorite_fail': 'Этот рецепт уже есть в избранном',
+            'unfavorite_fail': 'Этого рецепта нет в избранном',
             'cant_subscribe_yourself': 'Нельзя подписаться на себя',
             'subscribed_already': 'Вы уже подписаны на этого пользователя',
             'no_subscribe': 'Вы не подписаны на этого пользователя',
@@ -50,6 +52,7 @@ class IngredientTypeViewSet(viewsets.ReadOnlyModelViewSet):
 class RecipeViewSet(viewsets.ModelViewSet):
     http_method_names = ('get', 'post', 'patch', 'delete')
     serializer_class = RecipeSerializer
+    permission_classes = (NotBannedOrReadOnly,)
 
     def get_queryset(self):
         q_list = []
@@ -66,13 +69,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
         is_favorited = self.request.query_params.get('is_favorited')
         if is_favorited == str(1):
             q_list.append(Q(pk__in=self.request.user.favorited.all()))
-        print(reduce(operator.and_, q_list))
         if q_list:
             return Recipe.objects.filter(
                 reduce(operator.and_, q_list)).distinct()
         return Recipe.objects.all()
-
-#        return Recipe.objects.filter(tags__slug__in=tags_list).distinct()
 
     @action(detail=True, url_path='favorite',
             methods=['POST', 'DELETE'])
@@ -103,7 +103,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         response['Content-Disposition'] = 'attachment; filename=test.txt'
         return response
 
-    @action(detail=True, url_path='shopping_cart', methods=['POST', 'DELETE'])
+    @action(detail=True, url_path='shopping_cart', methods=['POST', 'DELETE'],
+            permission_classes=(IsAuthenticated,))
     def shopping_cart(self, request, pk):
         recipe = get_object_or_404(Recipe, pk=pk)
         current_user = request.user
@@ -123,6 +124,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 class SubscriptionViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = CustomUserSubscribeSerializer
+#    permission_classes = (NotBannedOrReadOnly,)
 
     def get_queryset(self):
         current_user = self.request.user

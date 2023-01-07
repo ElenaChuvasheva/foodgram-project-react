@@ -134,3 +134,4 @@ dmypy.json
 test_script.py
 test_script1.py
 sent_emails/
+backend/foodgram_backend/api/v1/permissions.py

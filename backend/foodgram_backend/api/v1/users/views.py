@@ -6,12 +6,14 @@ from rest_framework.decorators import action
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 
+from api.v1.pagination import CustomPagination
 from api.v1.users.serializers import CustomUserSerializer
 
 User = get_user_model()
 
 
 class CustomUserViewSet(UserViewSet):
+    pagination_class = CustomPagination
     def get_permissions(self):
         if self.action == 'me':
             self.permission_classes = settings.PERMISSIONS.current_user
