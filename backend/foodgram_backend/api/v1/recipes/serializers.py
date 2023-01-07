@@ -4,6 +4,7 @@ from rest_framework.serializers import SerializerMethodField
 
 from api.v1.users.serializers import CustomUserSerializer
 from recipes.models import IngredientAmount, IngredientType, Recipe, Tag
+from utils.strings import str_to_file
 
 User = get_user_model()
 
@@ -27,10 +28,17 @@ class IngredientTypeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class Base64ImageField(serializers.ImageField):
+    def to_internal_value(self, data):
+        if isinstance(data, str) and data.startswith('data:image'):
+            _, file = str_to_file(data)
+        return super().to_internal_value(file)
+
+
 class RecipeShortSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
-        fields = ('id', 'name', 'cooking_time')
+        fields = ('id', 'name', 'image', 'cooking_time')
 
 
 class IngredientAmountSerializer(serializers.ModelSerializer):
@@ -95,11 +103,13 @@ class RecipeSerializer(serializers.ModelSerializer):
     is_in_shopping_cart = SerializerMethodField()
     # убрать tags = ... или сделать через primarykey, если выдача неважна
     tags = TagsField(many=True, queryset=Tag.objects.all())
+    image = Base64ImageField()
 
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'ingredients', 'text', 'cooking_time',
-                  'tags', 'author', 'is_favorited', 'is_in_shopping_cart')
+                  'tags', 'author', 'is_favorited', 'is_in_shopping_cart',
+                  'image')
 
     def get_is_favorited(self, obj):
         return self.context['request'].user in obj.favorited_by.all()

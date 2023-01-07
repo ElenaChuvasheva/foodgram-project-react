@@ -121,6 +121,10 @@ class Recipe(models.Model):
         blank=True
     )
 
+    image = models.ImageField(
+        upload_to='recipes/images/',
+    )
+
     class Meta:
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'

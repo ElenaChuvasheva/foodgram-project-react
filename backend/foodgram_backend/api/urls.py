@@ -12,8 +12,6 @@ users_list = CustomUserViewSet.as_view(
     {'post': 'create', 'get': 'list'})
 users_detail = CustomUserViewSet.as_view(
     {'get': 'retrieve'})
-# users_subscriptions = CustomUserViewSet.as_view(
-#    {'get': 'my_subscriptions'})
 # пермишен для примера
 # users_subscribe = CustomUserViewSet.as_view(
 #    {'post': 'subscribe', 'delete': 'unsubscribe'},

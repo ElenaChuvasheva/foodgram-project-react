@@ -1,5 +1,5 @@
-100,bingobongo,bingobongo@yamdb.fake,admin,password,1
-101,capt_obvious,capt_obvious@yamdb.fake,admin,password,1
-102,faust,faust@yamdb.fake,user,password,0
-103,reviewer,reviewer@yamdb.fake,user,password,0
-104,angry,angry@yamdb.fake,user,password,0
+100,bingobongo,bingobongo@yamdb.fake,password,1
+101,capt_obvious,capt_obvious@yamdb.fake,password,1
+102,faust,faust@yamdb.fake,password,0
+103,reviewer,reviewer@yamdb.fake,password,0
+104,angry,angry@yamdb.fake,password,0

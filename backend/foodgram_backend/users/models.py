@@ -10,12 +10,6 @@ MAX_LENGTH_EMAIL = 254
 
 class CustomUser(AbstractUser):
     """Кастомная модель User."""
-    ADMIN = 'admin'
-    USER = 'user'
-    ROLES = (
-        (ADMIN, 'Administrator'),
-        (USER, 'User'),
-    )
     username = models.CharField(
         max_length=MAX_LENGTH,
         unique=True,
@@ -41,13 +35,13 @@ class CustomUser(AbstractUser):
         max_length=MAX_LENGTH,
         verbose_name='Фамилия пользователя'
     )
-    role = models.CharField(
-        max_length=50,
-        choices=ROLES,
-        default=USER,
-        verbose_name='Роль'
-    )
-    not_banned = models.BooleanField(default=True, verbose_name='Не забанен')
+#    role = models.CharField(
+#        max_length=50,
+#        choices=ROLES,
+#        default=USER,
+#        verbose_name='Роль'
+#    )
+#    not_banned = models.BooleanField(default=True, verbose_name='Не забанен')
 
     class Meta:
         ordering = ('id',)
@@ -58,13 +52,13 @@ class CustomUser(AbstractUser):
         return self.username
 
     def save(self, *args, **kwargs):
-        if self.is_staff or self.is_superuser:
-            self.role = self.ADMIN
-        if self.is_banned:
+        if self.is_superuser:
+            self.is_staff = True
+        if not self.is_active:
             self.is_staff = False
             self.is_superuser = False
         super(CustomUser, self).save(*args, **kwargs)
-        if self.is_admin and not self.is_superuser:
+        if self.is_staff and not self.is_superuser:
             self.add_admin_permissions()
 
     def add_admin_permissions(self):
@@ -90,15 +84,11 @@ class CustomUser(AbstractUser):
                                   *recipe_perms, *subscribe_perms,
                                   *tag_perms, *user_perms)
 
-    @property
-    def is_admin(self):
-        return self.role == self.ADMIN
 
-    @property
-    def is_banned(self):
-        return not self.not_banned
+#    @property
+#    def is_banned(self):
+#        return not self.not_banned
 
 #    def save(self, *args, **kwargs):
 #        if self.user != self.author:
 #            super(Subscribe, self).save(*args, **kwargs)
-

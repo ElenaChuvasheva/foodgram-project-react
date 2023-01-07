@@ -10,7 +10,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from api.v1.permissions import NotBannedOrReadOnly
+from api.v1.permissions import IsAuthorOrReadOnly
 from api.v1.recipes.serializers import (CustomUserSubscribeSerializer,
                                         IngredientTypeSerializer,
                                         RecipeSerializer,
@@ -52,7 +52,7 @@ class IngredientTypeViewSet(viewsets.ReadOnlyModelViewSet):
 class RecipeViewSet(viewsets.ModelViewSet):
     http_method_names = ('get', 'post', 'patch', 'delete')
     serializer_class = RecipeSerializer
-    permission_classes = (NotBannedOrReadOnly,)
+    permission_classes = (IsAuthorOrReadOnly,)
 
     def get_queryset(self):
         q_list = []
@@ -92,7 +92,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response(get_error_context(messages['unfavorite_fail']),
                         status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=False, url_path='download_shopping_cart', methods=['GET'])
+    @action(detail=False, url_path='download_shopping_cart', methods=['GET'],
+            permission_classes=(IsAuthenticated,))
     def download_shopping_cart(self, request):
         recipes = request.user.cart.all()
         ingredients = IngredientType.objects.filter(
@@ -103,8 +104,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         response['Content-Disposition'] = 'attachment; filename=test.txt'
         return response
 
-    @action(detail=True, url_path='shopping_cart', methods=['POST', 'DELETE'],
-            permission_classes=(IsAuthenticated,))
+    @action(detail=True, url_path='shopping_cart', methods=['POST', 'DELETE'])
     def shopping_cart(self, request, pk):
         recipe = get_object_or_404(Recipe, pk=pk)
         current_user = request.user
@@ -124,7 +124,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 class SubscriptionViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = CustomUserSubscribeSerializer
-#    permission_classes = (NotBannedOrReadOnly,)
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         current_user = self.request.user
@@ -132,7 +132,6 @@ class SubscriptionViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     @action(detail=True)
     def subscribe(self, request, id):
-        print(self.request.query_params)
         author = get_object_or_404(User, pk=id)
         current_user = self.request.user
         if current_user == author:

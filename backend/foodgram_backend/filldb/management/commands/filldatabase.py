@@ -9,9 +9,17 @@ from django.core.management.base import BaseCommand
 
 from recipes.models import (IngredientAmount, IngredientType, Measure, Recipe,
                             Subscribe, Tag)
-from utils.strings import clean_word
+from utils.strings import clean_word, str_to_file
 
 User = get_user_model()
+
+maxInt = sys.maxsize
+while True:
+    try:
+        csv.field_size_limit(maxInt)
+        break
+    except OverflowError:
+        maxInt = int(maxInt / 10)
 
 CSV_DIR = os.path.join(os.path.dirname(os.path.dirname(settings.BASE_DIR)),
                        'data')
@@ -27,6 +35,7 @@ RECIPES = 'recipes'
 INGREDIENTS_AMOUNTS = 'ingredients_amounts'
 TAGS = 'tags'
 TAGS_RECIPES = 'tags_recipes'
+IMAGES = 'images'
 USERS = 'users'
 SUBSCRIBES = 'subscribes'
 FAVORITED = 'favorited'
@@ -44,10 +53,9 @@ def read_file(filename):
 def create_objects(row, filename):
     if filename == USERS:
         user = User.objects.create(
-            pk=int(row[0]), username=row[1], email=row[2], role=row[3],
-        )
-        user.set_password(row[4])
-        user.is_staff = int(row[5])
+            pk=int(row[0]), username=row[1], email=row[2])
+        user.set_password(row[3])
+        user.is_staff = int(row[4])
         user.save()
     elif filename == SUBSCRIBES:
         user = User.objects.get(pk=int(row[0]))
@@ -79,6 +87,10 @@ def create_objects(row, filename):
         tag = Tag.objects.get(pk=int(row[0]))
         recipe = Recipe.objects.get(pk=int(row[1]))
         recipe.tags.add(tag)
+    elif filename == IMAGES:
+        recipe = Recipe.objects.get(pk=int(row[0]))
+        name, file = str_to_file(row[1])
+        recipe.image.save(name, file, save=True)
     elif filename == FAVORITED:
         User.objects.get(pk=int(row[0])).favorited.add(
             Recipe.objects.get(pk=int(row[1]))
@@ -106,6 +118,7 @@ class Command(BaseCommand):
         read_to_DB(INGREDIENTS_AMOUNTS)
         read_to_DB(TAGS)
         read_to_DB(TAGS_RECIPES)
+        read_to_DB(IMAGES)
         read_to_DB(FAVORITED)
         read_to_DB(CART)
         logging.info('база данных готова')
