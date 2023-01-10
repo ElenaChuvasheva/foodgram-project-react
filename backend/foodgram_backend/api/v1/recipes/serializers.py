@@ -16,7 +16,7 @@ messages = {'not_less_1': 'Количество не может быть мен�
 
 
 class RecipeError(APIException):
-    code = 400
+    status_code = 400
 
 
 class TagSerializer(serializers.ModelSerializer):
