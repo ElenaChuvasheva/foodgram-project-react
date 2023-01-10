@@ -12,10 +12,6 @@ users_list = CustomUserViewSet.as_view(
     {'post': 'create', 'get': 'list'})
 users_detail = CustomUserViewSet.as_view(
     {'get': 'retrieve'})
-# пермишен для примера
-# users_subscribe = CustomUserViewSet.as_view(
-#    {'post': 'subscribe', 'delete': 'unsubscribe'},
-#    permission_classes=[permissions.IsAuthenticated])
 users_me = CustomUserViewSet.as_view(
     {'get': 'me'})
 users_set_password = CustomUserViewSet.as_view(
@@ -50,9 +46,6 @@ subscribe_urls = [
 ]
 
 cart_urls = []
-
-# переопределить TokenCreateView из-за кода ответа?
-# ловить response и возвращать с другим кодом?
 
 v1_recipes_router = routers.DefaultRouter()
 v1_recipes_router.register('tags', TagViewSet, basename='tags')

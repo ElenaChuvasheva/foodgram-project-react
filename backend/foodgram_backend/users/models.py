@@ -35,13 +35,6 @@ class CustomUser(AbstractUser):
         max_length=MAX_LENGTH,
         verbose_name='Фамилия пользователя'
     )
-#    role = models.CharField(
-#        max_length=50,
-#        choices=ROLES,
-#        default=USER,
-#        verbose_name='Роль'
-#    )
-#    not_banned = models.BooleanField(default=True, verbose_name='Не забанен')
 
     class Meta:
         ordering = ('id',)
@@ -83,12 +76,3 @@ class CustomUser(AbstractUser):
                                   *ingredientamount_perms,
                                   *recipe_perms, *subscribe_perms,
                                   *tag_perms, *user_perms)
-
-
-#    @property
-#    def is_banned(self):
-#        return not self.not_banned
-
-#    def save(self, *args, **kwargs):
-#        if self.user != self.author:
-#            super(Subscribe, self).save(*args, **kwargs)

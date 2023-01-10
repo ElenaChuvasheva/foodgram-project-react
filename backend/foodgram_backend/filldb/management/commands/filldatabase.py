@@ -21,9 +21,6 @@ while True:
     except OverflowError:
         maxInt = int(maxInt / 10)
 
-# CSV_DIR = os.path.join(os.path.dirname(os.path.dirname(settings.BASE_DIR)),
-#                       'data')
-
 CSV_DIR = os.path.join(settings.BASE_DIR, 'data')
 
 
