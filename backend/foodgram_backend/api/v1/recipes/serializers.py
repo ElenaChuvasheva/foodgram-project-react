@@ -157,11 +157,10 @@ class RecipeSerializer(serializers.ModelSerializer):
         return instance
 
     def __make_ingredients(self, recipe, ingredients):
-        for ingredient in ingredients:
-            IngredientAmount.objects.create(
-                recipe=recipe,
-                ingredient=ingredient['ingredient']['pk'],
-                amount=ingredient['amount'])
+        IngredientAmount.objects.bulk_create([IngredientAmount(
+            recipe=recipe,
+            ingredient=ingredient['ingredient']['pk'],
+            amount=ingredient['amount']) for ingredient in ingredients])
 
     def __make_tags(self, recipe, tags):
         for tag in tags:

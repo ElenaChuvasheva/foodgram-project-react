@@ -136,3 +136,5 @@ test_script1.py
 test_recipe.txt
 sent_emails/
 media/
+
+backend/.vscode/settings.json

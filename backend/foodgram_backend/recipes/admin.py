@@ -8,6 +8,7 @@ class IngredientAmountInline(admin.TabularInline):
     model = IngredientAmount
     list_select_related = ('ingredient',)
     raw_id_fields = ('ingredient',)
+    min_num = 1
     verbose_name_plural = 'Ингредиенты'
 
 
