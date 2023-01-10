@@ -1,0 +1,3 @@
+create_test_db.bat
+sent_emails/
+db.sqlite3

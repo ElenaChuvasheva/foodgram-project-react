@@ -8,7 +8,7 @@ SECRET_KEY = 'm$&m+5lb%q@ehwkq6tz#0)u8&xkm&3^u!+o9u5zqr-iic^pol7'
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -22,11 +22,11 @@ INSTALLED_APPS = [
     'django_filters',
     'django_extensions',
     'djoser',
-    'django_cleanup',
     'recipes',
     'filldb',
     'users',
     'api',
+    'django_cleanup',
 ]
 
 MIDDLEWARE = [
@@ -118,6 +118,9 @@ EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
 LANGUAGE_CODE = 'ru-ru'
 
 TIME_ZONE = 'UTC'
@@ -127,6 +130,3 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
-
-STATIC_URL = '/static/'

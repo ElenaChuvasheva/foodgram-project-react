@@ -5,11 +5,12 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, mixins, status, viewsets
+from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from api.v1.filters import IngredientTypeFilter
 from api.v1.permissions import IsAuthorOrReadOnly
 from api.v1.recipes.serializers import (CustomUserSubscribeSerializer,
                                         IngredientTypeSerializer,
@@ -36,16 +37,17 @@ def get_error_context(message):
     return {'errors': message}
 
 
-# пагинация нужна в итоге?
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
+    pagination_class = None
     serializer_class = TagSerializer
     queryset = Tag.objects.all()
 
 
 class IngredientTypeViewSet(viewsets.ReadOnlyModelViewSet):
+    pagination_class = None
     serializer_class = IngredientTypeSerializer
     queryset = IngredientType.objects.all()
-    filter_backends = (filters.SearchFilter,)
+    filter_backends = (IngredientTypeFilter,)
     search_fields = ('^name',)
 
 
@@ -99,7 +101,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ingredients = IngredientType.objects.filter(
             ingredient_amounts__recipe__in=recipes).annotate(
                 sum=Sum('ingredient_amounts__amount'))
-        text = '\n'.join([f'{p.name}, {p.sum}' for p in ingredients])
+        text = '\n'.join([f'{p.name}, {p.sum} {p.measurement_unit.name}'
+                          for p in ingredients])
         response = HttpResponse(text, content_type='text/plain')
         response['Content-Disposition'] = 'attachment; filename=test.txt'
         return response

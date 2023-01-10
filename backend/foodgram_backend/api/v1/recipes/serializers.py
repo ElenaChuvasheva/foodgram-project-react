@@ -11,7 +11,7 @@ User = get_user_model()
 messages = {'not_less_1': 'Количество не может быть меньше 1',
             'ingr_no_repeat': 'Ингредиенты не должны повторяться',
             'ingr_not_empty': 'Список ингредиентов не может быть пустым',
-            'tags_not_empty': 'Список тегов не может быть пустым'}
+            'tags_not_empty': 'Укажите теги'}
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -50,7 +50,6 @@ class IngredientAmountSerializer(serializers.ModelSerializer):
     measurement_unit = serializers.PrimaryKeyRelatedField(
         source='ingredient.measurement_unit.name',
         queryset=IngredientType.objects.all(), required=False)
-    # чей id нужен?
 
     class Meta:
         model = IngredientAmount
@@ -62,7 +61,6 @@ class IngredientAmountSerializer(serializers.ModelSerializer):
         return value
 
 
-# также к вопросу о выдаче
 class TagsField(serializers.RelatedField):
     def to_internal_value(self, data):
         return data
@@ -101,7 +99,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         read_only=True, default=serializers.CurrentUserDefault())
     is_favorited = SerializerMethodField()
     is_in_shopping_cart = SerializerMethodField()
-    # убрать tags = ... или сделать через primarykey, если выдача неважна
     tags = TagsField(many=True, queryset=Tag.objects.all())
     image = Base64ImageField()
 
@@ -117,18 +114,21 @@ class RecipeSerializer(serializers.ModelSerializer):
     def get_is_in_shopping_cart(self, obj):
         return self.context['request'].user in obj.cart_of.all()
 
-    def validate_ingredients(self, value):
-        ingredients_list = [v['ingredient']['pk'] for v in value]
-        if len(set(ingredients_list)) != len(ingredients_list):
-            raise serializers.ValidationError(messages['ingr_no_repeat'])
-        if not value:
-            raise serializers.ValidationError(messages['ingr_not_empty'])
-        return value
+    def validate(self, data):
+        if 'ingredientamount_set' in data:
+            ingr_dict = data['ingredientamount_set']['all']
+            if not ingr_dict:
+                raise serializers.ValidationError(messages['ingr_not_empty'])
+            ingr_list = [v['ingredient']['pk'] for v in ingr_dict]
+            if len(set(ingr_list)) != len(ingr_list):
+                raise serializers.ValidationError(messages['ingr_no_repeat'])
 
-    def validate_tags(self, value):
-        if not value:
-            raise serializers.ValidationError(messages['tags_not_empty'])
-        return value
+        if 'tags' in data:
+            tags_list = data['tags']
+            if not tags_list:
+                raise serializers.ValidationError(messages['tags_not_empty'])
+
+        return data
 
     def create(self, validated_data):
         tags = validated_data.pop('tags')
