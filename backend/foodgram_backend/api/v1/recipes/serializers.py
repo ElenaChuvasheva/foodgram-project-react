@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from rest_framework.exceptions import APIException
 from rest_framework.serializers import SerializerMethodField
 
 from api.v1.users.serializers import CustomUserSerializer
@@ -12,6 +13,10 @@ messages = {'not_less_1': 'Количество не может быть мен�
             'ingr_no_repeat': 'Ингредиенты не должны повторяться',
             'ingr_not_empty': 'Список ингредиентов не может быть пустым',
             'tags_not_empty': 'Укажите теги'}
+
+
+class RecipeError(APIException):
+    code = 400
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -114,21 +119,18 @@ class RecipeSerializer(serializers.ModelSerializer):
     def get_is_in_shopping_cart(self, obj):
         return self.context['request'].user in obj.cart_of.all()
 
-    def validate(self, data):
-        if 'ingredientamount_set' in data:
-            ingr_dict = data['ingredientamount_set']['all']
-            if not ingr_dict:
-                raise serializers.ValidationError(messages['ingr_not_empty'])
-            ingr_list = [v['ingredient']['pk'] for v in ingr_dict]
-            if len(set(ingr_list)) != len(ingr_list):
-                raise serializers.ValidationError(messages['ingr_no_repeat'])
+    def validate_ingredients(self, value):
+        ingredients_list = [v['ingredient']['pk'] for v in value]
+        if len(set(ingredients_list)) != len(ingredients_list):
+            raise RecipeError(detail=messages['ingr_no_repeat'])
+        if not value:
+            raise RecipeError(detail=messages['ingr_not_empty'])
+        return value
 
-        if 'tags' in data:
-            tags_list = data['tags']
-            if not tags_list:
-                raise serializers.ValidationError(messages['tags_not_empty'])
-
-        return data
+    def validate_tags(self, value):
+        if not value:
+            raise RecipeError(detail=messages['tags_not_empty'])
+        return value
 
     def create(self, validated_data):
         tags = validated_data.pop('tags')
