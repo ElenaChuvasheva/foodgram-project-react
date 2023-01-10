@@ -120,11 +120,11 @@ class RecipeSerializer(serializers.ModelSerializer):
         return self.context['request'].user in obj.cart_of.all()
 
     def validate_ingredients(self, value):
+        if not value:
+            raise RecipeError(detail=messages['ingr_not_empty'])
         ingredients_list = [v['ingredient']['pk'] for v in value]
         if len(set(ingredients_list)) != len(ingredients_list):
             raise RecipeError(detail=messages['ingr_no_repeat'])
-        if not value:
-            raise RecipeError(detail=messages['ingr_not_empty'])
         return value
 
     def validate_tags(self, value):
