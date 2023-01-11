@@ -38,8 +38,8 @@ class IngredientType(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Вид ингредиента'
-        verbose_name_plural = 'Виды ингредиентов'
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
         ordering = ('name',)
         constraints = (
             models.UniqueConstraint(fields=('name', 'measurement_unit'),

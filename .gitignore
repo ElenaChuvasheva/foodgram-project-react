@@ -135,6 +135,8 @@ test_script.py
 test_script1.py
 test_recipe.txt
 sent_emails/
-media/
-
+media1/
 backend/.vscode/settings.json
+create_test_db.bat
+entrypoint.sh
+data/

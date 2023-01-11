@@ -45,16 +45,6 @@ class IngredientTypeAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
 
 
-@admin.register(IngredientAmount)
-class IngredientAmountAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'ingredient', 'amount')
-    list_select_related = ('ingredient',)
-    search_fields = ('ingredient__name',)
-    list_filter = ('ingredient__name',)
-    raw_id_fields = ('ingredient',)
-    empty_value_display = '-пусто-'
-
-
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name', )}
