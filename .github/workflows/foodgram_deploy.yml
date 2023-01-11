@@ -23,3 +23,15 @@ jobs:
           context: ./backend/
           push: true
           tags: chuvashevalena/foodgram_backend:latest 
+
+  send_message:
+    runs-on: ubuntu-latest
+    needs: build_and_push_to_docker_hub
+    steps:
+    - name: send message
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: ${{ github.workflow }} успешно выполнен!
+  
