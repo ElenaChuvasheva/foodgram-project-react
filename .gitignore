@@ -140,3 +140,4 @@ backend/.vscode/settings.json
 create_test_db.bat
 entrypoint.sh
 data/
+filldb/
