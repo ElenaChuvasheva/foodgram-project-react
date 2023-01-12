@@ -15,12 +15,9 @@ services:
       - ../frontend/:/app/result_build/
 
   backend:    
-    build:
-      context: ../backend
-      dockerfile: Dockerfile
-#    ports:
-#      - "8000:8000"
+    image: chuvashevalena/foodgram_backend:latest
     restart: always
+    pull_policy: always
     volumes:
       - media_backend_value:/app/media/
       - static_backend_value:/app/static/

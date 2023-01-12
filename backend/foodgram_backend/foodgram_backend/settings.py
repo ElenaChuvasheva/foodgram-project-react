@@ -10,7 +10,7 @@ AUTH_USER_MODEL = 'users.CustomUser'
 
 SECRET_KEY = 'm$&m+5lb%q@ehwkq6tz#0)u8&xkm&3^u!+o9u5zqr-iic^pol7'
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -20,18 +20,19 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',    
+    'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
     'django_filters',
     'django_extensions',
     'djoser',
     'recipes',
-    'filldb',
+    # 'filldb',
     'users',
     'api',
     'django_cleanup',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
