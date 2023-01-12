@@ -51,7 +51,10 @@ jobs:
             echo DB_HOST=${{ secrets.DB_HOST }} >> .env
             echo DB_PORT=${{ secrets.DB_PORT }} >> .env
             sudo docker-compose up -d
+            sudo docker-compose exec -T backend python manage.py collectstatic
             sudo docker-compose exec -T backend python manage.py migrate
+            echo "from django.contrib.contenttypes.models import ContentType; ContentType.objects.all().delete();" | sudo docker-compose exec -T backend python manage.py shell
+
 
   send_message:
     runs-on: ubuntu-latest
