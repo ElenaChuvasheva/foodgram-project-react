@@ -23,12 +23,7 @@ jobs:
           context: ./backend/
           push: true
           tags: chuvashevalena/foodgram_backend:latest 
-#      - name: Build and Push Frontend to Docker Hub
-#        uses: docker/build-push-action@v2 
-#        with:
-#          context: ./frontend/
-#          push: true
-#          tags: chuvashevalena/foodgram_frontend:latest 
+
   deploy:
     runs-on: ubuntu-latest
     needs: build_and_push_to_docker_hub
@@ -55,7 +50,6 @@ jobs:
             sudo docker-compose exec -T backend python manage.py migrate
             echo "from django.contrib.contenttypes.models import ContentType; ContentType.objects.all().delete();" | sudo docker-compose exec -T backend python manage.py shell
             sudo docker-compose exec -T backend python manage.py loaddata fixtures.json
-
 
   send_message:
     runs-on: ubuntu-latest
