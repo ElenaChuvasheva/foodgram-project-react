@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   build_and_push_to_docker_hub:
-    name: Push Docker images to Docker Hub
+    name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
     steps:
@@ -23,12 +23,12 @@ jobs:
           context: ./backend/
           push: true
           tags: chuvashevalena/foodgram_backend:latest 
-      - name: Build and Push Frontend to Docker Hub
-        uses: docker/build-push-action@v2 
-        with:
-          context: ./frontend/
-          push: true
-          tags: chuvashevalena/foodgram_frontend:latest 
+#      - name: Build and Push Frontend to Docker Hub
+#        uses: docker/build-push-action@v2 
+#        with:
+#          context: ./frontend/
+#          push: true
+#          tags: chuvashevalena/foodgram_frontend:latest 
   deploy:
     runs-on: ubuntu-latest
     needs: build_and_push_to_docker_hub
