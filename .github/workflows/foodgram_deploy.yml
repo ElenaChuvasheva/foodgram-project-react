@@ -48,7 +48,6 @@ jobs:
             sudo docker-compose build --no-cache
             sudo docker-compose up
             sudo docker image prune -f
-            sudo docker-compose exec -T web python manage.py collectstatic --noinput
 
   send_message:
     runs-on: ubuntu-latest
