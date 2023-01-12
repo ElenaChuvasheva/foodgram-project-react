@@ -7,13 +7,8 @@ services:
     env_file:
       - ./.env
 
-#  frontend:
-#    build:
-#      context: ../frontend
-#      dockerfile: Dockerfile
   frontend:    
     image: chuvashevalena/foodgram_frontend:latest
-#    restart: always
     pull_policy: always
     volumes:
       - ../frontend/:/app/result_build/
