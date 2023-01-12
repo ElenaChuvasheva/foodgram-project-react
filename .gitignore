@@ -138,6 +138,7 @@ sent_emails/
 media1/
 backend/.vscode/settings.json
 create_test_db.bat
+killthemall.bat
 entrypoint.sh
 data/
 filldb/

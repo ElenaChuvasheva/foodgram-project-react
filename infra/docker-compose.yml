@@ -13,7 +13,7 @@ services:
 #      dockerfile: Dockerfile
   frontend:    
     image: chuvashevalena/foodgram_frontend:latest
-    restart: always
+#    restart: always
     pull_policy: always
     volumes:
       - ../frontend/:/app/result_build/
@@ -35,7 +35,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
       - media_backend_value:/var/html/media/
