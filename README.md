@@ -87,5 +87,5 @@ IP сервера 158.160.5.175
 Суперпользователь admin, a@a.ru, пароль admin  
 
 ## Авторы проекта
-- [Елена Чувашева](https://github.com/ElenaChuvasheva) - backend
+- [Елена Чувашева](https://github.com/ElenaChuvasheva) - бэкенд
 - Яндекс.Практикум - фронтенд
