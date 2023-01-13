@@ -27,7 +27,28 @@ DB_PORT=5432
 ```
 docker-compose up
 ```
+Образы для контейнеров frontend и backend будут загружены c Docker Hub. Если необходимо собрать их именно по коду на локальном компьютере, измените текст файла docker-compose.yml в части, описывающей frontend и backend:
+```
+  frontend:    
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ../frontend/:/app/result_build/
 
+  backend:    
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    volumes:
+      - media_backend_value:/app/media/
+      - static_backend_value:/app/static/
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+
+```
 
 ![foodgram_deploy CI](https://github.com/ElenaChuvasheva/foodgram-project-react/actions/workflows/foodgram_deploy.yml/badge.svg)
 
