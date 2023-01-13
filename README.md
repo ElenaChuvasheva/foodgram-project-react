@@ -4,8 +4,11 @@
 Пользователи могут публиковать рецепты, подписываться на публикации других пользователей, добавлять понравившиеся рецепты в список «Избранное», а перед походом в магазин скачивать сводный список продуктов, необходимых для приготовления одного или нескольких выбранных блюд.
 В админке настроены различные уровни доступа для суперюзера и админа.
 
+## Технологии
+Python, Django Rest Framework, Djoser, Docker, PostgreSQL
+
 ## Локальный запуск проекта  
-Для локального запуска подойдёт Docker 20.10.21, Docker Compose 2.12.2.
+Для запуска подойдёт Docker 20.10.21, Docker Compose 2.12.2.  
 Клонируйте репозиторий:  
 ```
 git clone git@github.com:ElenaChuvasheva/foodgram-project-react.git
@@ -71,8 +74,18 @@ docker-compose exec backend python manage.py loaddata fixtures.json
 В тестовой базе данных суперпользователь admin, email a@a.ru, пароль admin.
 Сайт откроется по адресу localhost.
 
+## Примеры запросов
+/recipes - главная страница с рецептами
+/signin - вход на сайт
+/api/docs - документация API
+/for_staff_only - админка
+
 ![foodgram_deploy CI](https://github.com/ElenaChuvasheva/foodgram-project-react/actions/workflows/foodgram_deploy.yml/badge.svg)
 
 IP сервера 158.160.5.175  
 Адрес админки for_staff_only/  
 Суперпользователь admin, a@a.ru, пароль admin  
+
+## Авторы проекта
+- [Елена Чувашева](https://github.com/ElenaChuvasheva) - backend
+- Яндекс.Практикум - фронтенд
