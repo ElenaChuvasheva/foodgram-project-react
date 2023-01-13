@@ -49,6 +49,27 @@ docker-compose up
       - db
 
 ```
+Внутри контейнера выполните команды сборки статики и применения миграций:
+```
+docker-compose exec backend python manage.py collectstatic
+docker-compose exec backend python manage.py migrate
+```
+Зайдите в shell:
+```
+docker-compose exec backend python manage.py shell
+```
+Выполните скрипт:
+```
+from django.contrib.contenttypes.models import ContentType
+ContentType.objects.all().delete()
+quit()
+```
+При необходимости выполните загрузку фикстур:
+```
+docker-compose exec backend python manage.py loaddata fixtures.json
+```
+В тестовой базе данных суперпользователь admin, email a@a.ru, пароль admin.
+Сайт откроется по адресу localhost.
 
 ![foodgram_deploy CI](https://github.com/ElenaChuvasheva/foodgram-project-react/actions/workflows/foodgram_deploy.yml/badge.svg)
 
