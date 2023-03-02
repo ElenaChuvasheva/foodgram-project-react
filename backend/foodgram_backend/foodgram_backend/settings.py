@@ -8,7 +8,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
-SECRET_KEY = ''
+SECRET_KEY = 'm$&m+5lb%q@ehwkq6tz#0)u8&xkm&3^u!+o9u5zqr-iic^pol7'
 
 DEBUG = False
 
