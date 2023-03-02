@@ -17,7 +17,7 @@ git clone git@github.com:ElenaChuvasheva/foodgram-project-react.git
 ```
 cd foodgram-project-react/infra/
 ```
-Создайте в этой папке файл .env с переменными окружения для работы с базой данных:
+Создайте в этой папке файл .env с переменными окружения для работы с базой данных, значения даны для примера:
 ```
 DB_ENGINE=django.db.backends.postgresql
 DB_NAME=postgres
@@ -25,6 +25,7 @@ POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 DB_HOST=db
 DB_PORT=5432
+SECRET_KEY=m$&m+5lb%q@ehwkq6tz#0)u8&xkm&3^u!+o9u5zqr-iic^pol7
 ```
 В папке foodgram-project-react/infra/ запустите команду:
 ```
