@@ -83,7 +83,7 @@ docker-compose exec backend python manage.py loaddata fixtures.json
 
 ![foodgram_deploy CI](https://github.com/ElenaChuvasheva/foodgram-project-react/actions/workflows/foodgram_deploy.yml/badge.svg)
 
-IP сервера 158.160.5.175  
+Адрес сайта foodgram.gotdns.ch  
 Адрес админки for_staff_only/  
 Суперпользователь admin, a@a.ru, пароль admin  
 
