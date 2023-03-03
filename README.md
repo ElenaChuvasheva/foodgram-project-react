@@ -72,19 +72,19 @@ quit()
 ```
 docker-compose exec backend python manage.py loaddata fixtures.json
 ```
-В тестовой базе данных суперпользователь admin, email a@a.ru, пароль admin.
+В тестовой базе данных суперпользователь admin, email a@a.ru, пароль admin.  
 Сайт откроется по адресу localhost.
 
 ## Примеры запросов
-/recipes - главная страница с рецептами
-/signin - вход на сайт
-/api/docs - документация API
-/for_staff_only - админка
+/recipes - главная страница с рецептами  
+/signin - вход на сайт  
+/api/docs - документация API  
+/for_staff_only - админка  
 
 ![foodgram_deploy CI](https://github.com/ElenaChuvasheva/foodgram-project-react/actions/workflows/foodgram_deploy.yml/badge.svg)
 
 Адрес сайта foodgram.gotdns.ch  
-Адрес админки for_staff_only/  
+Адрес админки foodgram.gotdns.ch/for_staff_only/  
 Суперпользователь admin, a@a.ru, пароль admin  
 
 ## Авторы проекта
