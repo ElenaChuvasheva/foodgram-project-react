@@ -24,7 +24,7 @@ jobs:
           push: true
           tags: chuvashevalena/foodgram_backend:latest 
 
-build_and_push_frontend_to_docker_hub:
+  build_and_push_frontend_to_docker_hub:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
