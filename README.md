@@ -89,9 +89,7 @@ docker-compose exec backend python manage.py loaddata fixtures.json
 
 ![foodgram_deploy CI](https://github.com/ElenaChuvasheva/foodgram-project-react/actions/workflows/foodgram_deploy.yml/badge.svg)
 
-Адрес сайта foodgram.gotdns.ch  
-Адрес админки foodgram.gotdns.ch/for_staff_only/  
-Суперпользователь admin, a@a.ru, пароль admin  
+Проект запущен в Яндекс.облаке.
 
 ## Планы развития
 * Комментарии к рецептам
