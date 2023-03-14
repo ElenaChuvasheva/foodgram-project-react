@@ -94,7 +94,9 @@ docker-compose exec backend python manage.py loaddata fixtures.json
 Суперпользователь admin, a@a.ru, пароль admin  
 
 ## Планы развития
+* Комментарии к рецептам
 * Личные сообщения
+* Регистрация и восстановление пароля с проверкой по емейл
 
 ## Авторы проекта
 - [Елена Чувашева](https://github.com/ElenaChuvasheva) - бэкенд
